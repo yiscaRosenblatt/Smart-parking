@@ -2,8 +2,10 @@ package main.model;
 
 import main.factory.ParkingSpotFactory;
 import main.observer.ParkingObserver;
+import main.report.RevenueReport;
 import main.util.ParkingFeeCalculator;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,9 @@ public class ParkingLot {
     private Gate entranceGate;
     private Gate exitGate;
     private ParkingSpotFactory spotFactory;
+    private RevenueReport revenueReport;
+
+
 
 
     public ParkingLot() {
@@ -23,7 +28,9 @@ public class ParkingLot {
         this.observers = new ArrayList<>();
         this.entranceGate = new Gate();
         this.exitGate = new Gate();
-        this.spotFactory = new ParkingSpotFactory();  // Factory
+        this.spotFactory = new ParkingSpotFactory();// Factory
+        this.revenueReport = new RevenueReport();
+
     }
 
     // מאפשר להוסיף מקום חדש
@@ -36,10 +43,12 @@ public class ParkingLot {
         for (ParkingSpot spot : spots) {
             if (!spot.isOccupied()) {
                 Vehicle clone = vehicle.clone(); // שימוש ב־Prototype
-                clone.setEntryTime(LocalDateTime.now()); // ⬅️ הוספת זמן כניסה כאן
-                entranceGate.open(); // נפתח שער רק כשיש מקום
+                clone.setEntryTime(LocalDateTime.now());
+                entranceGate.open();
                 spot.assignVehicle(clone);
                 vehicles.add(clone);
+                revenueReport.vehicleEntered();
+                revenueReport.updateDailyCount(LocalDate.now()); // ⬅️ חדש
                 notifyObservers("Vehicle entered: " + clone.getLicensePlate());
                 System.out.println("Vehicle " + clone.getLicensePlate() + " parked at spot " + spot.getSpotId());
                 entranceGate.close();
@@ -47,30 +56,32 @@ public class ParkingLot {
             }
         }
         System.out.println("No available spots for vehicle: " + vehicle.getLicensePlate());
-        // לא נפתח שער במקרה שאין מקום
     }
-
 
 
     public void exitVehicle(String licensePlate) {
         for (ParkingSpot spot : spots) {
             Vehicle v = spot.getCurrentVehicle();
             if (v != null && v.getLicensePlate().equals(licensePlate)) {
-
-                double fee = ParkingFeeCalculator.calculateFee(v.getEntryTime(), LocalDateTime.now());
-                System.out.println("Total fee: " + fee + "₪");
-
+                v.setExitTime(LocalDateTime.now());
+                double fee = ParkingFeeCalculator.calculate(v);
+                revenueReport.addTransaction(fee);
+                revenueReport.calculateAverageDuration(vehicles);
+                exitGate.open();
                 spot.releaseVehicle();
                 vehicles.removeIf(vehicle -> vehicle.getLicensePlate().equals(licensePlate));
+                revenueReport.vehicleExited();
                 notifyObservers("Vehicle exited: " + licensePlate);
-                exitGate.close(); // אם יש exitGate
+                exitGate.close();
                 return;
             }
         }
         System.out.println("Vehicle not found: " + licensePlate);
     }
 
-
+    public RevenueReport getRevenueReport() {
+        return revenueReport;
+    }
 
     public List<ParkingSpot> getAvailableSpots() {
         List<ParkingSpot> available = new ArrayList<>();

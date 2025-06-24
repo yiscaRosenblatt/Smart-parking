@@ -9,6 +9,10 @@ public class Car extends Vehicle {
 
     @Override
     public Vehicle clone() {
-        return new Car(this.licensePlate, this.ownerName);
+        Car cloned = new Car(this.licensePlate, this.ownerName);
+        cloned.setEntryTime(this.entryTime);
+        cloned.setExitTime(this.exitTime);
+        return cloned;
     }
 }
+

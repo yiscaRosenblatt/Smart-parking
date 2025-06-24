@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 public abstract class Vehicle implements Cloneable {
     protected String licensePlate;
     protected String ownerName;
-    private LocalDateTime entryTime;
-    private LocalDateTime exitTime;
+    protected LocalDateTime entryTime;
+    protected LocalDateTime exitTime;
 
     public Vehicle(String licensePlate, String ownerName) {
         this.licensePlate = licensePlate;

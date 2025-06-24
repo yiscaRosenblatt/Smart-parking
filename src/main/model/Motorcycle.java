@@ -18,6 +18,9 @@ public class Motorcycle extends Vehicle {
 
     @Override
     public Vehicle clone() {
-        return new Motorcycle(this.licensePlate, this.ownerName, this.hasHelmetStorage);
+        Motorcycle cloned = new Motorcycle(this.licensePlate, this.ownerName, this.hasHelmetStorage);
+        cloned.setEntryTime(this.entryTime);
+        cloned.setExitTime(this.exitTime);
+        return cloned;
     }
 }
