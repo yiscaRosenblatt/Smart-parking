@@ -18,6 +18,10 @@ public class ParkingLot {
     private Gate exitGate;
     private ParkingSpotFactory spotFactory;
     private RevenueReport revenueReport;
+    private final double pricePerMinute = 5.0;
+    private List<Vehicle> exitedVehicles = new ArrayList<>();
+
+
 
 
 
@@ -64,7 +68,8 @@ public class ParkingLot {
             Vehicle v = spot.getCurrentVehicle();
             if (v != null && v.getLicensePlate().equals(licensePlate)) {
                 v.setExitTime(LocalDateTime.now());
-                double fee = ParkingFeeCalculator.calculate(v);
+                exitedVehicles.add(v);
+                double fee = ParkingFeeCalculator.calculate(v, pricePerMinute);
                 revenueReport.addTransaction(fee);
                 revenueReport.calculateAverageDuration(vehicles);
                 exitGate.open();
@@ -73,6 +78,7 @@ public class ParkingLot {
                 revenueReport.vehicleExited();
                 notifyObservers("Vehicle exited: " + licensePlate);
                 exitGate.close();
+
                 return;
             }
         }
@@ -111,4 +117,13 @@ public class ParkingLot {
     public List<Vehicle> getVehicles() {
         return vehicles;
     }
+
+    public double getPricePerMinute() {
+        return pricePerMinute;
+    }
+
+    public List<Vehicle> getExitedVehicles() {
+        return exitedVehicles;
+    }
+
 }

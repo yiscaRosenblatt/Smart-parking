@@ -55,7 +55,7 @@ public class RevenueReport {
     public void printReport() {
         System.out.println("\n=== Parking Revenue Report ===");
         System.out.println("Revenue Report");
-        System.out.println("Total spots: 3");
+        System.out.println("Total spots: 5");
         System.out.println("Total vehicles parked: " + getCurrentVehicles());
         System.out.println("Total revenue: $" + totalRevenue);
         System.out.println("Average parking duration: " + averageParkingDuration + " minutes");
